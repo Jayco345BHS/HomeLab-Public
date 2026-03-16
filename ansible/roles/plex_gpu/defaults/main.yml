@@ -1,0 +1,21 @@
+---
+nvidia_driver_version: 535
+nvidia_driver_packages:
+  - "nvidia-driver-{{ nvidia_driver_version }}"
+  - "nvidia-utils-{{ nvidia_driver_version }}"
+  - "libnvidia-encode-{{ nvidia_driver_version }}"
+nvidia_repo_arch_map:
+  x86_64: amd64
+  amd64: amd64
+  aarch64: arm64
+  arm64: arm64
+  default: amd64
+nvidia_distro_map:
+  noble: ubuntu22.04
+  jammy: ubuntu22.04
+  focal: ubuntu20.04
+  bionic: ubuntu18.04
+  bookworm: debian12
+  bullseye: debian11
+  default: ubuntu22.04
+plex_gpu_reboot_after_driver: false

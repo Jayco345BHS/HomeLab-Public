@@ -1,0 +1,39 @@
+# Terraform artifacts
+.terraform/
+.terraform.tfstate.backup
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars.json
+terraform/proxmox/terraform.tfvars
+# Only ignore local override files
+override.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Local credentials and secrets
+*.pem
+*.key
+*.pfx
+ansible/inventory/*.retry
+
+# Python virtual environments & caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Docker environment files
+# Main .env files are committed with template-safe defaults
+# Use .env.local for local overrides (not committed)
+docker/**/.env.local
+
+# Logs and editor noise
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

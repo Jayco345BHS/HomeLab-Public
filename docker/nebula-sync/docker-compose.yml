@@ -1,0 +1,13 @@
+services:
+  nebula-sync:
+    image: ghcr.io/lovelaze/nebula-sync:v1.3.0
+    container_name: nebula-sync
+    env_file:
+      - .env
+    environment:
+    - PRIMARY=${PRIMARY:?Primary Pi-hole URL required}
+    - REPLICAS=${REPLICAS:?Replica Pi-hole URLs required}
+    - FULL_SYNC=${FULL_SYNC:-true}
+    - RUN_GRAVITY=${RUN_GRAVITY:-true}
+    - CRON=${CRON:-0 * * * *}
+    restart: unless-stopped

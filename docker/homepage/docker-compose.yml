@@ -1,0 +1,12 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:v1.11.0
+    container_name: homepage
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: gethomepage.dev,homepage.local,192.168.1.12,192.168.1.12:3000,localhost,127.0.0.1
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app/config # Use this folder directly as Homepage config
+      - /var/run/docker.sock:/var/run/docker.sock:ro # optional, for docker integrations
+    restart: unless-stopped

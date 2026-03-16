@@ -1,0 +1,29 @@
+---
+
+- resources:
+    cpu: true
+    memory: true
+    disk: /
+
+- greeting:
+    text_size: xl
+    text: My Homelab Dashboard
+
+- datetime:
+    text_size: xl
+    format:
+      timeStyle: short
+      dateStyle: long
+      hour12: false
+
+- openmeteo:
+    label: Home
+    latitude: 43.70
+    longitude: -79.42
+    timezone: America/Toronto
+    units: metric
+    cache: 10
+
+- search:
+    provider: google
+    target: _blank

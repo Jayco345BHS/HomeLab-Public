@@ -1,0 +1,193 @@
+---
+
+- Infrastructure:
+  - Proxmox:
+      href: http://192.168.1.10:8006
+      description: Hypervisor management
+      icon: proxmox.png
+      ping: 192.168.1.10
+      widget:
+        type: proxmox
+        url: https://192.168.1.10:8006
+        username: api@pam!homepage-token
+        password: CHANGE_ME_PROXMOX_TOKEN_SECRET
+        node: proxmox-node # optional
+
+  - TrueNAS:
+      href: http://192.168.1.15
+      description: Storage and SMB shares
+      icon: truenas.png
+      ping: 192.168.1.15
+      widget:
+        type: truenas
+        url: http://192.168.1.15
+        username: CHANGE_ME_TRUENAS_USER
+        password: CHANGE_ME_PASSWORD
+        enablePools: true
+
+- Virtual Machines:
+  - dns-1:
+      href: http://192.168.1.11/admin
+      description: VMID 100 - Pi-hole DNS resolver
+      icon: pi-hole.png
+      ping: 192.168.1.11
+      proxmoxNode: proxmox-node
+      proxmoxVMID: 100
+
+  - docker-1:
+      href: http://192.168.1.12
+      description: VMID 101 - Primary Docker host
+      icon: docker.png
+      ping: 192.168.1.12
+      proxmoxNode: proxmox-node
+      proxmoxVMID: 101
+
+  - nas-1:
+      href: http://192.168.1.15
+      description: VMID 102 - TrueNAS VM
+      icon: truenas.png
+      ping: 192.168.1.15
+      proxmoxNode: proxmox-node
+      proxmoxVMID: 102
+
+  - plex-1:
+      href: http://192.168.1.13:32400/web/index.html#!/
+      description: VMID 103 - Plex with GPU passthrough
+      icon: plex.png
+      ping: 192.168.1.13
+      proxmoxNode: proxmox-node
+      proxmoxVMID: 103
+
+  - gameserver-1:
+      href: http://192.168.1.14
+      description: VMID 104 - Game server host
+      icon: amp.png
+      ping: 192.168.1.14
+      proxmoxNode: proxmox-node
+      proxmoxVMID: 104
+
+- Media and Downloads:
+  - Plex:
+      href: http://192.168.1.13:32400/web/index.html#!/
+      description: Media server
+      icon: plex.png
+      ping: 192.168.1.13
+      widget:
+        type: plex
+        url: http://192.168.1.13:32400
+        key: CHANGE_ME_API_KEY
+
+  - Immich:
+      href: http://192.168.1.13:2283
+      description: Photo and video backup
+      icon: immich.png
+      ping: 192.168.1.13
+      widget:
+        type: immich
+        url: http://192.168.1.13:2283
+        key: CHANGE_ME_API_KEY
+        version: 2
+
+  - qBittorrent:
+      href: http://192.168.1.12:8080
+      description: Torrent client through Gluetun
+      icon: qbittorrent.png
+      ping: 192.168.1.12
+      server: local
+      container: qbittorrentvpn
+      widget:
+        type: qbittorrent
+        url: http://192.168.1.12:8080
+        username: CHANGE_ME_APP_USER
+        password: CHANGE_ME_PASSWORD
+
+  - Seerr:
+      href: http://192.168.1.12:5055
+      description: Media request manager
+      icon: jellyseerr.png
+      ping: 192.168.1.12
+      server: local
+      container: seerr
+      widget:
+        type: jellyseerr
+        url: http://192.168.1.12:5055
+        key: CHANGE_ME_API_KEY
+
+  - Tautulli:
+      href: http://192.168.1.12:8181
+      description: Plex analytics and stats
+      icon: tautulli.png
+      ping: 192.168.1.12
+      server: local
+      container: tautulli
+      widget:
+        type: tautulli
+        url: http://192.168.1.12:8181
+        key: CHANGE_ME_API_KEY
+        
+  - Radarr:
+      href: http://192.168.1.12:7878
+      description: Movie manager
+      icon: radarr.png
+      ping: 192.168.1.12
+      server: local
+      container: radarr
+      widget:
+        type: radarr
+        url: http://192.168.1.12:7878
+        key: CHANGE_ME_API_KEY
+
+  - Sonarr:
+      href: http://192.168.1.12:8989
+      description: TV manager
+      icon: sonarr.png
+      ping: 192.168.1.12
+      server: local
+      container: sonarr
+      widget:
+        type: sonarr
+        url: http://192.168.1.12:8989
+        key: CHANGE_ME_API_KEY
+
+  - Calendar:
+      description: Sonarr and Radarr upcoming releases
+      icon: calendar.png
+      widget:
+        type: calendar
+        view: monthly
+        maxEvents: 20
+        integrations:
+          - type: sonarr
+            service_group: Media and Downloads
+            service_name: Sonarr
+            color: teal
+            baseUrl: http://192.168.1.12:8989
+          - type: radarr
+            service_group: Media and Downloads
+            service_name: Radarr
+            color: amber
+            baseUrl: http://192.168.1.12:7878
+
+  - Prowlarr:
+      href: http://192.168.1.12:9696
+      description: Indexer manager
+      icon: prowlarr.png
+      ping: 192.168.1.12
+      server: local
+      container: prowlarr
+      widget:
+        type: prowlarr
+        url: http://192.168.1.12:9696
+        key: CHANGE_ME_API_KEY
+
+  - Lidarr:
+      href: http://192.168.1.12:8686
+      description: Music manager
+      icon: lidarr.png
+      ping: 192.168.1.12
+      server: local
+      container: lidarr
+      widget:
+        type: lidarr
+        url: http://192.168.1.12:8686
+        key: CHANGE_ME_API_KEY

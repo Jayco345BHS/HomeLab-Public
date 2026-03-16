@@ -1,0 +1,55 @@
+name: Terraform Proxmox VMs
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_mode:
+        description: "Choose plan to review or apply to create/update VMs"
+        required: true
+        default: plan
+        type: choice
+        options:
+          - plan
+          - apply
+
+jobs:
+  terraform:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: terraform/proxmox
+    env:
+      TF_IN_AUTOMATION: true
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.9.0
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
+          tags: tag:github
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan
+        env:
+          TF_VAR_pm_api_url: "https://alex-server:8006/api2/json"
+        run: terraform plan -out=tfplan
+
+      - name: Terraform apply
+        if: ${{ github.event.inputs.run_mode == 'apply' }}
+        env:
+          TF_VAR_pm_api_url: "https://alex-server:8006/api2/json"
+        run: terraform apply -auto-approve tfplan

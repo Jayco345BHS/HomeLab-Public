@@ -1,0 +1,27 @@
+services:
+  yubal:
+    image: ghcr.io/guillevc/yubal:latest
+    container_name: yubal
+    user: 1000:1000
+    ports:
+      - 8000:8000
+    environment:
+      YUBAL_TZ: America/Toronto
+      YUBAL_SCHEDULER_ENABLED: "true"
+      YUBAL_SCHEDULER_CRON: "0 0 * * *"
+      YUBAL_AUDIO_FORMAT: opus
+      YUBAL_AUDIO_QUALITY: "0"
+      YUBAL_FETCH_LYRICS: "true"
+      YUBAL_DOWNLOAD_UGC: "false"
+      YUBAL_REPLAYGAIN: "true"
+    volumes:
+      - /mnt/media/music:/app/data # Music stored on shared NAS mount
+      - ./beets:/app/beets # Beets configuration and database
+      - ./ytdlp:/app/ytdlp # yt-dlp configuration (cookies)
+      - ./config:/app/config # Yubal configuration
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped

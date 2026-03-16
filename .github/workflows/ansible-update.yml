@@ -1,0 +1,44 @@
+name: Ansible Homelab Updates
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 * * 0" # Weekly Sunday 4am
+
+jobs:
+  ansible:
+    runs-on: ubuntu-24.04
+    env:
+      ANSIBLE_CONFIG: ansible/ansible.cfg
+      ANSIBLE_HOST_KEY_CHECKING: "False"
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
+          tags: tag:github
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Verify inventory
+        run: ansible-inventory --list
+
+      - name: Run Ansible playbook
+        env:
+          ANSIBLE_PRIVATE_KEY_FILE: ~/.ssh/id_rsa
+        run: |
+          ansible-playbook ansible/playbooks/update.yml

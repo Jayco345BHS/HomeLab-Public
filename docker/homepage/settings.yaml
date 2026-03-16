@@ -1,0 +1,24 @@
+title: My Homelab Dashboard
+theme: dark
+headerStyle: underlined
+
+favicon: https://www.google.com/favicon.ico
+
+color: slate
+
+useEqualHeights: true
+
+providers:
+  docker: local
+  proxmox: proxmox
+
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: false
+  hideVisitURL: false
+
+layout:
+  Media and Downloads:
+    style: row
+    columns: 3
+

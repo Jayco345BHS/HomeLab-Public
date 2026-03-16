@@ -1,0 +1,81 @@
+---
+- name: Remove untrusted NVIDIA apt sources
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/{{ item }}"
+    state: absent
+  loop:
+    - nvidia-container-toolkit.list
+  ignore_errors: true
+  when: "'storage_servers' not in group_names"
+
+- name: Refresh apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: "'storage_servers' not in group_names"
+
+- name: Upgrade base system packages
+  ansible.builtin.apt:
+    upgrade: dist
+  when: 
+    - common_enable_system_upgrade
+    - "'storage_servers' not in group_names"
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name: "{{ common_base_packages + common_extra_packages }}"
+    state: present
+  when: "'storage_servers' not in group_names"
+
+- name: Create alex admin user
+  ansible.builtin.user:
+    name: alex
+    groups: sudo
+    shell: /bin/bash
+    password: "{{ lookup('env', 'ALEX_PASSWORD_HASH') }}"
+    update_password: always
+    createhome: true
+    state: present
+
+- name: Ensure QEMU guest agent is running
+  ansible.builtin.service:
+    name: qemu-guest-agent
+    state: started
+    enabled: true
+  when: 
+    - "'qemu-guest-agent' in (common_base_packages + common_extra_packages)"
+    - "'storage_servers' not in group_names"
+
+- name: Remove cloud-init SSH restrictive config
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+    state: absent
+  when: common_enable_password_auth | default(true)
+  notify: Reload SSH
+
+- name: Ensure SSH password authentication is enabled
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PasswordAuthentication'
+    line: PasswordAuthentication yes
+    state: present
+  when: common_enable_password_auth | default(true)
+  notify: Reload SSH
+  changed_when: true
+
+- name: Create SMB mount point directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: "0777"
+  loop: "{{ smb_mounts | default([]) }}"
+
+- name: Mount SMB shares
+  ansible.posix.mount:
+    path: "{{ item.path }}"
+    src: "{{ item.src }}"
+    fstype: cifs
+    opts: "{{ item.opts }}"
+    state: mounted
+    boot: true
+  loop: "{{ smb_mounts | default([]) }}"

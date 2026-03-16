@@ -1,0 +1,56 @@
+name: Ansible Homelab Provision
+
+on:
+  workflow_dispatch:
+
+jobs:
+  provision:
+    runs-on: ubuntu-24.04
+    env:
+      ANSIBLE_CONFIG: ansible/ansible.cfg
+      ANSIBLE_HOST_KEY_CHECKING: "False"
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Install Ansible and dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y ansible python3-pip whois
+          ALEX_PASSWORD_HASH=$(mkpasswd -m sha-512 "${{ secrets.ALEX_PASSWORD }}")
+          echo "ALEX_PASSWORD_HASH=$ALEX_PASSWORD_HASH" >> $GITHUB_ENV
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
+          tags: tag:github
+
+      - name: Accept Tailscale routes
+        run: sudo tailscale set --accept-routes=true
+
+      - name: Verify Tailscale connectivity
+        run: |
+          tailscale status
+          tailscale ip -4
+          tailscale netcheck || true
+          for host in 192.168.1.11 192.168.1.12 192.168.1.13 192.168.1.14; do
+            echo "\n== tailscale ping $host =="
+            tailscale ping -c 3 $host || true
+            echo "== tcp port 22 check $host =="
+            nc -vz -w 3 $host 22 || true
+          done
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Run provisioning playbook
+        env:
+          ANSIBLE_PRIVATE_KEY_FILE: ~/.ssh/id_rsa
+        run: |
+          ansible-playbook ansible/playbooks/provision.yml

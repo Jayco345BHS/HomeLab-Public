@@ -1,0 +1,22 @@
+---
+common_enable_system_upgrade: true
+common_alex_password_hash: "$6$8/9LnJ8H5Z0N4c2Y$qLz6qE9vQ7f9mK5J3W7pR2x8nM4bL1c9d6hA5vZ2kY3jX8wU9oP1iS6tF2gH3dB0nC1mK5xL9qR2sT7uV8"
+common_base_packages:
+  - apt-transport-https
+  - ca-certificates
+  - cifs-utils
+  - curl
+  - git
+  - gnupg
+  - htop
+  - jq
+  - lsb-release
+  - net-tools
+  - qemu-guest-agent
+  - python3-pip
+  - python3-passlib
+  - software-properties-common
+  - unzip
+  - wget
+common_extra_packages: []
+common_enable_password_auth: true

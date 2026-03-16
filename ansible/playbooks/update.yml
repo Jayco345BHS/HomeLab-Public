@@ -1,0 +1,20 @@
+---
+- name: Update all homelab servers
+  hosts: homelab
+  become: true
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: "'storage_servers' not in group_names"
+
+    - name: Upgrade packages
+      apt:
+        upgrade: dist
+      when: "'storage_servers' not in group_names"
+
+    - name: Remove unused packages
+      apt:
+        autoremove: yes
+      when: "'storage_servers' not in group_names"

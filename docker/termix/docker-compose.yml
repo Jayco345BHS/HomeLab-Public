@@ -1,0 +1,20 @@
+services:
+  termix:
+    image: ghcr.io/lukegus/termix:release-1.11.2
+    container_name: termix
+    restart: unless-stopped
+    ports:
+      - "8083:8080"  # Changed from 8080 to avoid conflicts
+    volumes:
+      - termix-data:/app/data
+    environment:
+      PORT: "8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  termix-data:
+    driver: local

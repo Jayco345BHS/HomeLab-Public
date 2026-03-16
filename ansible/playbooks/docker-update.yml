@@ -1,0 +1,63 @@
+---
+- name: Deploy Docker stacks
+  hosts: docker_hosts
+  become: true
+  vars:
+    repo_root: "{{ playbook_dir | dirname | dirname }}"
+    stack_src_root: "{{ repo_root }}/docker"
+    stack_base_path: /opt/docker
+    docker_stacks:
+      dns-1: []
+      docker-1:
+        - arrstack
+        - yubal
+        - homepage
+        - termix
+      plex-1:
+        - plex
+        - immich
+      gameserver-1: []
+
+  tasks:
+    - name: Ensure Docker base directory exists
+      file:
+        path: "{{ stack_base_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Ensure stack directory exists on host
+      file:
+        path: "{{ stack_base_path }}/{{ stack_name }}"
+        state: directory
+        mode: "0755"
+      loop: "{{ docker_stacks[inventory_hostname] | default([]) }}"
+      loop_control:
+        loop_var: stack_name
+
+    - name: Copy stack files to host
+      copy:
+        src: "{{ stack_src_root }}/{{ stack_name }}/"
+        dest: "{{ stack_base_path }}/{{ stack_name }}/"
+        owner: root
+        group: root
+        mode: preserve
+      loop: "{{ docker_stacks[inventory_hostname] | default([]) }}"
+      loop_control:
+        loop_var: stack_name
+
+    - name: Ensure Seerr config directory is writable by UID 1000
+      file:
+        path: "{{ stack_base_path }}/arrstack/seerr/config"
+        state: directory
+        owner: "1000"
+        group: "1000"
+        mode: "0755"
+      when: "'arrstack' in (docker_stacks[inventory_hostname] | default([]))"
+
+    - name: Pull and recreate stack
+      command:
+        cmd: docker compose up -d --pull always --remove-orphans
+        chdir: "{{ stack_base_path }}/{{ stack_name }}"
+      loop: "{{ docker_stacks[inventory_hostname] | default([]) }}"
+      loop_control:
+        loop_var: stack_name
