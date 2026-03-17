@@ -17,6 +17,8 @@ The stacks are split by function rather than by host. Deployment targeting is ha
 docker/
 ├── arrstack/
 ├── authentik/
+├── code-server/
+├── gitea/
 ├── homepage/
 ├── immich/
 ├── keepalived/
@@ -73,6 +75,26 @@ Self-hosted identity and access management stack.
 - runs Authentik with PostgreSQL
 - uses an `.env` file for secrets and database settings
 - intended for SSO, identity brokering, and access control across internal apps
+
+### code-server
+
+Browser-based VS Code environment.
+
+- provides remote code editing in a web UI
+- stores persistent editor/workspace state under `./config`
+- uses password-based auth placeholders by default for first-time setup
+
+This is useful for editing infra files from any device without a local IDE.
+
+### gitea
+
+Self-hosted Git forge stack.
+
+- runs Gitea with persistent data in `./data`
+- exposes web UI and Git-over-SSH ports
+- defaults to SQLite for simple single-node deployment
+
+This is a lightweight option for internal Git hosting and project management.
 
 ### homepage
 

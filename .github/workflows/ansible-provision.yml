@@ -5,6 +5,7 @@ on:
 
 jobs:
   provision:
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     env:
       ANSIBLE_CONFIG: ansible/ansible.cfg

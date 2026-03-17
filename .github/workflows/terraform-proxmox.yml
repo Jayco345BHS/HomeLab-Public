@@ -14,6 +14,7 @@ on:
 
 jobs:
   terraform:
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     defaults:
       run:
