@@ -138,7 +138,8 @@ What it does:
 - fixes ownership for the Seerr config directory
 - runs `docker compose up -d --pull always --remove-orphans` in each active stack directory
 - if a stack fails with `no space left on device`, prunes unused Docker images on that host and retries only the affected stacks once
-- fails immediately for non-space Docker errors, or if the retry still fails
+- if no-space persists after retry, runs a no-pull reconcile so existing containers remain running
+- fails immediately for non-space Docker errors, or if the no-pull fallback fails
 
 Current host-to-stack mapping inside this playbook:
 

@@ -89,7 +89,7 @@ Terraform now owns VM creation on Proxmox while Ansible configures each guest an
 | DNS-1 | 2 | 2 GB | 32 GB | 192.168.1.11 | Pi-hole / DNS |
 | Docker-1 | 4 | 16 GB | 50 GB | 192.168.1.12 | Primary Docker host |
 | NAS-1 | 4 | 16 GB | 32 GB boot disk + passthrough storage | Manual post-install | TrueNAS Scale storage server |
-| PLEX | 4 | 8 GB | 40 GB | 192.168.1.13 | GPU-enabled Plex server |
+| PLEX | 4 | 8 GB | 50 GB | 192.168.1.13 | GPU-enabled Plex server |
 | Game Server | 4 | 16 GB | 50 GB | 192.168.1.14 | Game + lab workloads |
 
 ### Ansible provisioning
@@ -98,6 +98,7 @@ Terraform now owns VM creation on Proxmox while Ansible configures each guest an
 2. Bootstrap packages, Docker, and host-level dependencies: `cd ansible && ansible-playbook playbooks/provision.yml`.
 3. Re-sync the active Compose projects after editing the `/docker` directory: `ansible-playbook playbooks/docker-update.yml`.
 	The playbook now retries stack updates that fail with `no space left on device` by pruning unused Docker images on that host, then rerunning only the affected stacks.
+	If a pull still cannot complete due to disk pressure, it reconciles the stack without pulling new images so currently running services stay online.
 
 The `plex` host installs `nvidia-driver-535`, the NVIDIA Container Toolkit, and configures Docker to default to the NVIDIA runtime so Plex and Immich can use GPU acceleration immediately after a reboot. The Docker update playbook currently syncs the active `arrstack`, `homepage`, `termix`, `yubal`, `plex`, and `immich` stacks.
 

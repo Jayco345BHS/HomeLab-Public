@@ -118,9 +118,25 @@
       loop_control:
         loop_var: stack_name
       register: compose_retry_attempt
+      failed_when: false
       when: (compose_no_space_stacks | default([]) | length) > 0
 
-    - name: Fail when retry still fails
+    - name: Identify stacks that still fail from no-space after retry
+      set_fact:
+        compose_retry_no_space_stacks: >-
+          {{
+            compose_retry_attempt.results
+            | default([])
+            | selectattr('rc', 'defined')
+            | selectattr('rc', 'ne', 0)
+            | selectattr('stderr', 'defined')
+            | selectattr('stderr', 'search', 'no space left on device')
+            | map(attribute='stack_name')
+            | list
+          }}
+      when: (compose_no_space_stacks | default([]) | length) > 0
+
+    - name: Fail when retry has non-space errors
       fail:
         msg: >-
           Docker compose retry failed for stack {{ item.stack_name }} on host {{ inventory_hostname }}
@@ -131,8 +147,57 @@
           | default([])
           | selectattr('rc', 'defined')
           | selectattr('rc', 'ne', 0)
+          | rejectattr('stderr', 'defined')
           | list
+          +
+          (
+            compose_retry_attempt.results
+            | default([])
+            | selectattr('rc', 'defined')
+            | selectattr('rc', 'ne', 0)
+            | selectattr('stderr', 'defined')
+            | rejectattr('stderr', 'search', 'no space left on device')
+            | list
+          )
         }}
       loop_control:
         label: "{{ item.stack_name | default('unknown') }}"
       when: (compose_no_space_stacks | default([]) | length) > 0
+
+    - name: Ensure existing containers stay up when pull cannot complete due to space
+      command:
+        cmd: docker compose up -d --remove-orphans
+        chdir: "{{ stack_base_path }}/{{ stack_name }}"
+      loop: "{{ compose_retry_no_space_stacks | default([]) }}"
+      loop_control:
+        loop_var: stack_name
+      register: compose_no_pull_attempt
+      failed_when: false
+      when: (compose_retry_no_space_stacks | default([]) | length) > 0
+
+    - name: Fail when no-pull fallback fails
+      fail:
+        msg: >-
+          Docker compose no-pull fallback failed for stack {{ item.stack_name }} on host {{ inventory_hostname }}
+          with rc={{ item.rc }}. stderr={{ item.stderr | default('') }}
+      loop: >-
+        {{
+          compose_no_pull_attempt.results
+          | default([])
+          | selectattr('rc', 'defined')
+          | selectattr('rc', 'ne', 0)
+          | list
+        }}
+      loop_control:
+        label: "{{ item.stack_name | default('unknown') }}"
+      when: (compose_retry_no_space_stacks | default([]) | length) > 0
+
+    - name: Warn when stack update was skipped due to persistent no-space
+      debug:
+        msg: >-
+          Stack {{ stack_name }} on host {{ inventory_hostname }} could not pull fresh images due to low Docker storage.
+          Existing containers were reconciled without pulling new images.
+      loop: "{{ compose_retry_no_space_stacks | default([]) }}"
+      loop_control:
+        loop_var: stack_name
+      when: (compose_retry_no_space_stacks | default([]) | length) > 0
