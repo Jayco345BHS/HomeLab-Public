@@ -54,10 +54,85 @@
         mode: "0755"
       when: "'arrstack' in (docker_stacks[inventory_hostname] | default([]))"
 
-    - name: Pull and recreate stack
+    - name: Pull and recreate stack (first attempt)
       command:
         cmd: docker compose up -d --pull always --remove-orphans
         chdir: "{{ stack_base_path }}/{{ stack_name }}"
       loop: "{{ docker_stacks[inventory_hostname] | default([]) }}"
       loop_control:
         loop_var: stack_name
+      register: compose_first_attempt
+      failed_when: false
+
+    - name: Identify stacks that failed from no-space condition
+      set_fact:
+        compose_no_space_stacks: >-
+          {{
+            compose_first_attempt.results
+            | default([])
+            | selectattr('rc', 'defined')
+            | selectattr('rc', 'ne', 0)
+            | selectattr('stderr', 'defined')
+            | selectattr('stderr', 'search', 'no space left on device')
+            | map(attribute='stack_name')
+            | list
+          }}
+
+    - name: Fail immediately on non-space compose errors
+      fail:
+        msg: >-
+          Docker compose failed for stack {{ item.stack_name }} on host {{ inventory_hostname }}
+          with rc={{ item.rc }}. stderr={{ item.stderr | default('') }}
+      loop: >-
+        {{
+          compose_first_attempt.results
+          | default([])
+          | selectattr('rc', 'defined')
+          | selectattr('rc', 'ne', 0)
+          | rejectattr('stderr', 'defined')
+          | list
+          +
+          (
+            compose_first_attempt.results
+            | default([])
+            | selectattr('rc', 'defined')
+            | selectattr('rc', 'ne', 0)
+            | selectattr('stderr', 'defined')
+            | rejectattr('stderr', 'search', 'no space left on device')
+            | list
+          )
+        }}
+      loop_control:
+        label: "{{ item.stack_name | default('unknown') }}"
+
+    - name: Prune unused Docker images when space errors are detected
+      command:
+        cmd: docker image prune -af
+      when: (compose_no_space_stacks | default([]) | length) > 0
+
+    - name: Retry pull and recreate for stacks that failed from no space
+      command:
+        cmd: docker compose up -d --pull always --remove-orphans
+        chdir: "{{ stack_base_path }}/{{ stack_name }}"
+      loop: "{{ compose_no_space_stacks | default([]) }}"
+      loop_control:
+        loop_var: stack_name
+      register: compose_retry_attempt
+      when: (compose_no_space_stacks | default([]) | length) > 0
+
+    - name: Fail when retry still fails
+      fail:
+        msg: >-
+          Docker compose retry failed for stack {{ item.stack_name }} on host {{ inventory_hostname }}
+          with rc={{ item.rc }}. stderr={{ item.stderr | default('') }}
+      loop: >-
+        {{
+          compose_retry_attempt.results
+          | default([])
+          | selectattr('rc', 'defined')
+          | selectattr('rc', 'ne', 0)
+          | list
+        }}
+      loop_control:
+        label: "{{ item.stack_name | default('unknown') }}"
+      when: (compose_no_space_stacks | default([]) | length) > 0
