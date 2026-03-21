@@ -6,6 +6,10 @@
     repo_root: "{{ playbook_dir | dirname | dirname }}"
     stack_src_root: "{{ repo_root }}/docker"
     stack_base_path: /opt/docker
+    compose_no_space_error_regex: '(?i)no space left on device'
+    gpu_required_stacks:
+      - plex
+      - immich
     docker_stacks:
       dns-1: []
       docker-1:
@@ -54,6 +58,49 @@
         mode: "0755"
       when: "'arrstack' in (docker_stacks[inventory_hostname] | default([]))"
 
+    - name: Identify GPU-required stacks on host
+      set_fact:
+        host_gpu_required_stacks: >-
+          {{
+            (docker_stacks[inventory_hostname] | default([]))
+            | intersect(gpu_required_stacks)
+            | list
+          }}
+
+    - name: Collect docker runtime info for GPU-required hosts
+      command:
+        cmd: docker info
+      register: docker_info_result
+      changed_when: false
+      failed_when: false
+      when: (host_gpu_required_stacks | default([]) | length) > 0
+
+    - name: Fail when NVIDIA docker runtime is unavailable
+      fail:
+        msg: >-
+          Host {{ inventory_hostname }} runs GPU-required stacks {{ host_gpu_required_stacks | join(', ') }},
+          but Docker runtime "nvidia" is not available. Ensure NVIDIA Container Toolkit is installed and Docker is configured with the nvidia runtime.
+      when:
+        - (host_gpu_required_stacks | default([]) | length) > 0
+        - docker_info_result.rc != 0 or ((docker_info_result.stdout | default('')) is not search('Runtimes:.*nvidia'))
+
+    - name: Check NVIDIA driver health for GPU-required hosts
+      command:
+        cmd: nvidia-smi
+      register: nvidia_smi_result
+      changed_when: false
+      failed_when: false
+      when: (host_gpu_required_stacks | default([]) | length) > 0
+
+    - name: Fail when NVIDIA driver is unhealthy
+      fail:
+        msg: >-
+          Host {{ inventory_hostname }} failed nvidia-smi check while running GPU-required stacks {{ host_gpu_required_stacks | join(', ') }}.
+          rc={{ nvidia_smi_result.rc }} stderr={{ nvidia_smi_result.stderr | default('') }}
+      when:
+        - (host_gpu_required_stacks | default([]) | length) > 0
+        - nvidia_smi_result.rc != 0
+
     - name: Pull and recreate stack (first attempt)
       command:
         cmd: docker compose up -d --pull always --remove-orphans
@@ -73,7 +120,7 @@
             | selectattr('rc', 'defined')
             | selectattr('rc', 'ne', 0)
             | selectattr('stderr', 'defined')
-            | selectattr('stderr', 'search', 'no space left on device')
+            | selectattr('stderr', 'search', compose_no_space_error_regex)
             | map(attribute='stack_name')
             | list
           }}
@@ -98,7 +145,7 @@
             | selectattr('rc', 'defined')
             | selectattr('rc', 'ne', 0)
             | selectattr('stderr', 'defined')
-            | rejectattr('stderr', 'search', 'no space left on device')
+            | rejectattr('stderr', 'search', compose_no_space_error_regex)
             | list
           )
         }}
@@ -156,7 +203,7 @@
             | selectattr('rc', 'defined')
             | selectattr('rc', 'ne', 0)
             | selectattr('stderr', 'defined')
-            | rejectattr('stderr', 'search', 'no space left on device')
+            | rejectattr('stderr', 'search', compose_no_space_error_regex)
             | list
           )
         }}
