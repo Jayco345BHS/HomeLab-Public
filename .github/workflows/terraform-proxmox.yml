@@ -53,8 +53,11 @@ jobs:
         if: ${{ github.event.inputs.run_mode == 'apply' }}
         run: |
           set -euo pipefail
-          state_count=$(terraform state list 2>/dev/null | wc -l || true)
-          if [ "$state_count" -eq 0 ]; then
+          state_list_file=$(mktemp)
+          terraform state list >"$state_list_file" 2>/dev/null || true
+          managed_count=$(grep -Ec '^[[:alnum:]_]+\.' "$state_list_file" || true)
+          echo "Detected Terraform-managed resources in state: $managed_count"
+          if [ "$managed_count" -eq 0 ]; then
             echo "::error::Terraform state is empty in this GitHub runner."
             echo "::error::Apply is blocked to avoid recreating existing Proxmox VMs."
             echo "::error::Use a remote backend or import existing resources into state before applying from CI."
