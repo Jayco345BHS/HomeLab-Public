@@ -11,6 +11,14 @@ on:
         options:
           - plan
           - apply
+      target_scope:
+        description: "Choose plex-only (safe default) or all-vms"
+        required: true
+        default: plex-1
+        type: choice
+        options:
+          - plex-1
+          - all-vms
 
 jobs:
   terraform:
@@ -47,10 +55,35 @@ jobs:
       - name: Terraform plan
         env:
           TF_VAR_pm_api_url: "https://alex-server:8006/api2/json"
-        run: terraform plan -out=tfplan
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event.inputs.target_scope }}" = "plex-1" ]; then
+            terraform plan -target='proxmox_virtual_environment_vm.vm["plex-1"]' -out=tfplan
+          else
+            terraform plan -out=tfplan
+          fi
+
+      - name: Import plex-1 when running plex-only apply
+        if: ${{ github.event.inputs.run_mode == 'apply' && github.event.inputs.target_scope == 'plex-1' }}
+        env:
+          TF_VAR_pm_api_url: "https://alex-server:8006/api2/json"
+        run: |
+          set -euo pipefail
+          if terraform state show 'proxmox_virtual_environment_vm.vm["plex-1"]' >/dev/null 2>&1; then
+            echo "plex-1 is already present in Terraform state."
+          else
+            echo "Importing existing plex-1 VM into ephemeral CI state..."
+            terraform import 'proxmox_virtual_environment_vm.vm["plex-1"]' "Alex-Server/103"
+          fi
+
+      - name: Re-plan plex-1 after import
+        if: ${{ github.event.inputs.run_mode == 'apply' && github.event.inputs.target_scope == 'plex-1' }}
+        env:
+          TF_VAR_pm_api_url: "https://alex-server:8006/api2/json"
+        run: terraform plan -target='proxmox_virtual_environment_vm.vm["plex-1"]' -out=tfplan
 
       - name: Guard apply when state is empty
-        if: ${{ github.event.inputs.run_mode == 'apply' }}
+        if: ${{ github.event.inputs.run_mode == 'apply' && github.event.inputs.target_scope == 'all-vms' }}
         run: |
           set -euo pipefail
           state_list_file=$(mktemp)
