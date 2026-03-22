@@ -1,6 +1,6 @@
 services:
   keepalived:
-    image: shawly/keepalived:2.3.2
+    image: shawly/keepalived:latest
     env_file:
       - .env
     environment:

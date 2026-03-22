@@ -71,3 +71,76 @@
     path: /etc/docker/.nvidia-ctk-configured
     state: touch
   when: nvidia_ctk_runtime is changed
+
+- name: Apply pending NVIDIA and Docker handlers before validation
+  meta: flush_handlers
+
+- name: Attempt to load NVIDIA kernel module
+  ansible.builtin.command: modprobe nvidia
+  register: plex_gpu_modprobe
+  changed_when: false
+  failed_when: false
+
+- name: Attempt to load NVIDIA UVM kernel module
+  ansible.builtin.command: modprobe nvidia_uvm
+  register: plex_gpu_modprobe_uvm
+  changed_when: false
+  failed_when: false
+  when: plex_gpu_modprobe.rc == 0
+
+- name: Detect Secure Boot state when NVIDIA module load fails
+  ansible.builtin.command: mokutil --sb-state
+  register: plex_gpu_secure_boot_state
+  changed_when: false
+  failed_when: false
+  when: plex_gpu_modprobe.rc != 0
+
+- name: Validate NVIDIA driver is operational
+  ansible.builtin.command: nvidia-smi
+  register: plex_gpu_nvidia_smi
+  changed_when: false
+  failed_when: false
+
+- name: Capture GPU diagnostics when nvidia-smi fails
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo "=== lspci (nvidia) ==="
+    lspci -nn | grep -i nvidia || true
+    echo
+    echo "=== lspci -k (nvidia) ==="
+    lspci -nnk | grep -A3 -Ei 'vga|3d|nvidia' || true
+    echo
+    echo "=== lsmod (nvidia) ==="
+    lsmod | grep -i nvidia || true
+    echo
+    echo "=== dkms status (nvidia) ==="
+    dkms status | grep -i nvidia || true
+    echo
+    echo "=== dmesg (nvidia/nvrm tail) ==="
+    dmesg | grep -Ei 'nvidia|nvrm' | tail -n 80 || true
+  args:
+    executable: /bin/bash
+  register: plex_gpu_diagnostics
+  changed_when: false
+  when: plex_gpu_nvidia_smi.rc != 0
+
+- name: Fail when NVIDIA driver is not usable after provisioning
+  ansible.builtin.fail:
+    msg: |
+      NVIDIA validation failed after provisioning on host {{ inventory_hostname }}.
+      modprobe nvidia rc={{ plex_gpu_modprobe.rc | default('n/a') }}
+      modprobe nvidia stderr={{ plex_gpu_modprobe.stderr | default('') }}
+      modprobe nvidia_uvm rc={{ plex_gpu_modprobe_uvm.rc | default('n/a') }}
+      modprobe nvidia_uvm stderr={{ plex_gpu_modprobe_uvm.stderr | default('') }}
+        secure boot state={{ plex_gpu_secure_boot_state.stdout | default('unknown') }}
+      nvidia-smi rc={{ plex_gpu_nvidia_smi.rc }}
+      nvidia-smi stdout={{ plex_gpu_nvidia_smi.stdout | default('') }}
+      nvidia-smi stderr={{ plex_gpu_nvidia_smi.stderr | default('') }}
+
+      Diagnostic snapshot:
+      {{ plex_gpu_diagnostics.stdout | default('no diagnostics captured') }}
+
+        Suggested remediation:
+        - If modprobe reports "Key was rejected by service", disable Secure Boot for the VM firmware or enroll/sign the NVIDIA DKMS module key (MOK).
+        - On Proxmox with OVMF, verify VM Secure Boot is disabled for this guest when using unsigned DKMS modules.
+  when: plex_gpu_nvidia_smi.rc != 0

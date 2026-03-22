@@ -25,46 +25,18 @@
         password: CHANGE_ME_PASSWORD
         enablePools: true
 
-- Virtual Machines:
-  - dns-1:
-      href: http://192.168.1.11/admin
-      description: VMID 100 - Pi-hole DNS resolver
-      icon: pi-hole.png
-      ping: 192.168.1.11
-      proxmoxNode: proxmox-node
-      proxmoxVMID: 100
-
-  - docker-1:
-      href: http://192.168.1.12
-      description: VMID 101 - Primary Docker host
-      icon: docker.png
+- Access and Utilities:
+  - Gitea:
+      href: http://192.168.1.12:3001
+      description: Self-hosted Git forge
+      icon: gitea.png
       ping: 192.168.1.12
-      proxmoxNode: proxmox-node
-      proxmoxVMID: 101
-
-  - nas-1:
-      href: http://192.168.1.15
-      description: VMID 102 - TrueNAS VM
-      icon: truenas.png
-      ping: 192.168.1.15
-      proxmoxNode: proxmox-node
-      proxmoxVMID: 102
-
-  - plex-1:
-      href: http://192.168.1.13:32400/web/index.html#!/
-      description: VMID 103 - Plex with GPU passthrough
-      icon: plex.png
-      ping: 192.168.1.13
-      proxmoxNode: proxmox-node
-      proxmoxVMID: 103
-
-  - gameserver-1:
-      href: http://192.168.1.14
-      description: VMID 104 - Game server host
-      icon: amp.png
-      ping: 192.168.1.14
-      proxmoxNode: proxmox-node
-      proxmoxVMID: 104
+      server: local
+      container: gitea
+      widget:
+        type: gitea
+        url: http://192.168.1.12:3001
+        key: CHANGE_ME_GITEA_TOKEN
 
 - Media and Downloads:
   - Plex:

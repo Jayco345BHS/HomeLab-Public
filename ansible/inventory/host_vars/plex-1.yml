@@ -1,10 +1,10 @@
 ---
 # Override NVIDIA driver settings for Plex
-nvidia_driver_version: 565
+nvidia_driver_version: 550
 nvidia_driver_packages:
-  - nvidia-headless-565-server
-  - nvidia-utils-565-server
-  - libnvidia-encode-565-server
+  - nvidia-driver-550
+  - nvidia-utils-550
+  - libnvidia-encode-550
 plex_gpu_reboot_after_driver: true
 
 # SMB share mounts for plex-1
