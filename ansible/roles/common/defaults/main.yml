@@ -20,3 +20,5 @@ common_base_packages:
   - wget
 common_extra_packages: []
 common_enable_password_auth: true
+smb_username: ""
+smb_password: ""

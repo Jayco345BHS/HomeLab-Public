@@ -94,9 +94,10 @@ The `[homelab:vars]` section applies shared connection settings across all hosts
 
 Host-specific variables for `docker-1`.
 
-- defines SMB mounts for `/mnt/media` and `/mnt/downloads`
-- points both mounts at the TrueNAS host on `192.168.1.15`
-- sets CIFS mount options so the shares are writable by UID/GID `1000`
+- defines an SMB mount for `/mnt/media`
+- points the mount at the TrueNAS host on `192.168.1.15`
+- sets CIFS mount options so the share is writable by UID/GID `1000`
+- uses `x-systemd.automount` and network-online options so mount recovery is resilient after host reboots
 
 These variables are consumed by the `common` role when it creates mount points and mounts the shares.
 
@@ -305,6 +306,7 @@ Run these from the `ansible/` directory.
 ansible-playbook playbooks/provision.yml
 ansible-playbook playbooks/docker-update.yml
 ansible-playbook playbooks/update.yml
+ansible-playbook playbooks/provision.yml --tags smb_mounts
 ```
 
 Useful ad-hoc checks:

@@ -2,6 +2,7 @@
 - name: Deploy Docker stacks
   hosts: docker_hosts
   become: true
+  ignore_unreachable: true
   vars:
     repo_root: "{{ playbook_dir | dirname | dirname }}"
     stack_src_root: "{{ repo_root }}/docker"

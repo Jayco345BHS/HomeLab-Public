@@ -2,17 +2,20 @@
 - name: Apply common configuration to all hosts
   hosts: homelab
   become: true
+  ignore_unreachable: true
   roles:
     - role: common
 
 - name: Install Docker on docker hosts
   hosts: docker_hosts
   become: true
+  ignore_unreachable: true
   roles:
     - role: docker_host
 
 - name: Enable NVIDIA runtime on Plex
   hosts: plex-1
   become: true
+  ignore_unreachable: true
   roles:
     - role: plex_gpu

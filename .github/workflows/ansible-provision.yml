@@ -53,5 +53,7 @@ jobs:
       - name: Run provisioning playbook
         env:
           ANSIBLE_PRIVATE_KEY_FILE: ~/.ssh/id_rsa
+          SMB_USERNAME: ${{ secrets.SMB_USERNAME }}
+          SMB_PASSWORD: ${{ secrets.SMB_PASSWORD }}
         run: |
           ansible-playbook ansible/playbooks/provision.yml

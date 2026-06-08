@@ -63,12 +63,31 @@
   notify: Reload SSH
   changed_when: true
 
+- name: Deploy SMB credentials file
+  ansible.builtin.copy:
+    content: |
+      username={{ smb_username }}
+      password={{ smb_password }}
+    dest: /etc/cifs-credentials
+    owner: root
+    group: root
+    mode: "0600"
+  when:
+    - smb_mounts | default([]) | length > 0
+    - smb_username | length > 0
+    - smb_password | length > 0
+  no_log: true
+  tags:
+    - smb_mounts
+
 - name: Create SMB mount point directories
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
     mode: "0777"
   loop: "{{ smb_mounts | default([]) }}"
+  tags:
+    - smb_mounts
 
 - name: Mount SMB shares
   ansible.posix.mount:
@@ -79,3 +98,5 @@
     state: mounted
     boot: true
   loop: "{{ smb_mounts | default([]) }}"
+  tags:
+    - smb_mounts
