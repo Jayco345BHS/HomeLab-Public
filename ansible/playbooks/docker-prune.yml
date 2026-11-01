@@ -1,0 +1,25 @@
+---
+- name: Prune unused Docker images on all hosts
+  hosts: homelab
+  become: true
+  ignore_unreachable: true
+  tasks:
+    - name: Check whether Docker is installed
+      command: docker --version
+      register: docker_version_result
+      changed_when: false
+      failed_when: false
+
+    - name: Remove unused Docker images
+      command: docker image prune --all --force
+      register: docker_prune_result
+      changed_when: true
+      when: docker_version_result.rc == 0
+
+    - name: Show reclaimed space
+      debug:
+        msg: "{{ inventory_hostname }}: {{ docker_prune_result.stdout_lines | default([]) | last }}"
+      when:
+        - docker_version_result.rc == 0
+        - docker_prune_result.stdout_lines is defined
+        - docker_prune_result.stdout_lines | length > 0

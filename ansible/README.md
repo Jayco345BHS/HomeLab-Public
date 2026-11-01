@@ -151,6 +151,18 @@ Current host-to-stack mapping inside this playbook:
 
 This playbook is for syncing Compose definitions after editing the Docker stack files in the repo.
 
+### playbooks/docker-prune.yml
+
+Docker image cleanup playbook for all hosts.
+
+It performs:
+
+- checks whether Docker is installed on the host
+- runs `docker image prune --all --force` to remove every image not used by a running or stopped container
+- logs the space reclaimed on each host
+
+Hosts without Docker are skipped. Unreachable hosts are ignored. This runs automatically once a month via the `Ansible Docker Image Prune` workflow, and can also be triggered manually.
+
 ### playbooks/update.yml
 
 Simple package maintenance playbook for all hosts.
