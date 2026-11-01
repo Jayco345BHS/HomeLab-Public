@@ -14,7 +14,7 @@ Before buying an HBA, verify your SATA controller's IOMMU grouping issue:
 
 ```bash
 # SSH into your Proxmox host
-ssh root@192.168.1.10
+ssh root@192.168.2.200
 
 # Check IOMMU groups
 for d in /sys/kernel/iommu_groups/*/devices/*; do 
@@ -154,7 +154,7 @@ terraform apply
 ```
 
 ### 3. Install TrueNAS
-1. Open Proxmox UI: https://192.168.1.10:8006
+1. Open Proxmox UI: https://192.168.2.200:8006
 2. Navigate to VM 104 (truenas)
 3. Start the VM
 4. Open **Console**
@@ -167,7 +167,7 @@ terraform apply
 ### 4. Post-Installation
 After TrueNAS boots:
 
-1. Access TrueNAS web UI: https://192.168.1.15
+1. Access TrueNAS web UI: https://192.168.2.208
 2. Login with admin credentials
 3. Navigate to **Storage** > **Disks**
 4. Verify all 4x 8TB drives are visible with SMART data
@@ -224,9 +224,9 @@ For LSI 9211-8i / 9207-8i:
 ## Network Configuration
 
 The VM is configured with:
-- IP: `192.168.1.15`
-- Gateway: `192.168.1.1`
-- DNS: `192.168.1.11, 1.1.1.1`
+- IP: `192.168.2.208`
+- Gateway: `192.168.2.1`
+- DNS: `192.168.2.202, 1.1.1.1`
 
 These are set via manual configuration post-installation (TrueNAS doesn't use cloud-init).
 

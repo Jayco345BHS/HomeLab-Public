@@ -15,7 +15,6 @@
       dns-1: []
       docker-1:
         - arrstack
-        - yubal
         - homepage
         - termix
       plex-1:

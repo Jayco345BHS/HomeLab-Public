@@ -6,5 +6,5 @@ smb_password: "CHANGE_ME_SMB_PASSWORD"
 smb_mounts:
   - name: media
     path: /mnt/media
-    src: //192.168.1.15/media
+    src: //192.168.2.208/media
     opts: "credentials=/etc/cifs-credentials,uid=1000,gid=1000,file_mode=0777,dir_mode=0777,_netdev,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.after=network-online.target,x-systemd.idle-timeout=600"

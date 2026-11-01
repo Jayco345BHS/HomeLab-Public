@@ -37,7 +37,7 @@ jobs:
           tailscale status
           tailscale ip -4
           tailscale netcheck || true
-          for host in 192.168.1.11 192.168.1.12 192.168.1.13 192.168.1.14; do
+          for host in 192.168.2.202 192.168.2.209 192.168.2.205 192.168.2.204; do
             echo "\n== tailscale ping $host =="
             tailscale ping -c 3 $host || true
             echo "== tcp port 22 check $host =="

@@ -1,5 +1,5 @@
 variable "pm_api_url" {
-  description = "Full Proxmox API URL e.g. https://192.168.1.10:8006/api2/json"
+  description = "Full Proxmox API URL e.g. https://192.168.2.200:8006/api2/json"
   type        = string
 }
 

@@ -54,7 +54,7 @@ TrueNAS currently uses an **LSI 9207-8i HBA** with **4× 8 TB Seagate IronWolf 7
 ## 📦 Current VM & Container Workloads
 
 - **Storage** – `nas-1` running TrueNAS Scale with HBA passthrough and SMB shares  
-- **Media** – Plex with GPU acceleration, Sonarr, Radarr, Lidarr, Prowlarr, qBittorrent, Seerr, Tautulli, and Yubal  
+- **Media** – Plex with GPU acceleration, Sonarr, Radarr, Lidarr, Prowlarr, qBittorrent, and Seerr  
 - **Photos & Files** – Immich for photo/video backup and a tracked Nextcloud stack for personal cloud services  
 - **Dashboards** – Homepage as the primary service portal and status dashboard  
 - **Networking** – Pi-hole for DNS, Gluetun for VPN-routed download traffic, plus repo-tracked Keepalived and Nebula Sync for HA work  
@@ -80,17 +80,17 @@ Terraform now owns VM creation on Proxmox while Ansible configures each guest an
 ### Terraform (Proxmox)
 
 1. Make sure Proxmox hosts an Ubuntu 24.04 cloud-init template that matches `var.template_name` (defaults to `ubuntu-24.04-cloudinit`).
-2. Create an API token with sufficient rights on the `192.168.1.10` host, then fill in `terraform/proxmox/terraform.tfvars` with secrets, network info, and TrueNAS settings.
+2. Create an API token with sufficient rights on the `192.168.2.200` host, then fill in `terraform/proxmox/terraform.tfvars` with secrets, network info, and TrueNAS settings.
 3. Deploy or rebuild: `cd terraform/proxmox && terraform init && terraform plan -out plan.tfplan && terraform apply plan.tfplan`.
 4. For TrueNAS, follow the ISO install and HBA passthrough notes in `terraform/proxmox/TRUENAS-SETUP.md` after Terraform creates the VM shell.
 
 | VM | vCPU | RAM | Disk | IP | Notes |
 | --- | --- | --- | --- | --- | --- |
-| DNS-1 | 2 | 2 GB | 32 GB | 192.168.1.11 | Pi-hole / DNS |
-| Docker-1 | 4 | 16 GB | 50 GB | 192.168.1.12 | Primary Docker host |
+| DNS-1 | 2 | 2 GB | 32 GB | 192.168.2.202 | Pi-hole / DNS |
+| Docker-1 | 4 | 16 GB | 50 GB | 192.168.2.209 | Primary Docker host |
 | NAS-1 | 4 | 16 GB | 32 GB boot disk + passthrough storage | Manual post-install | TrueNAS Scale storage server |
-| PLEX | 4 | 8 GB | 50 GB | 192.168.1.13 | GPU-enabled Plex server |
-| Game Server | 4 | 16 GB | 50 GB | 192.168.1.14 | Game + lab workloads |
+| PLEX | 4 | 8 GB | 50 GB | 192.168.2.205 | GPU-enabled Plex server |
+| Game Server | 4 | 16 GB | 50 GB | 192.168.2.204 | Game + lab workloads |
 
 ### Ansible provisioning
 
@@ -100,7 +100,7 @@ Terraform now owns VM creation on Proxmox while Ansible configures each guest an
 	The playbook now retries stack updates that fail with `no space left on device` by pruning unused Docker images on that host, then rerunning only the affected stacks.
 	If a pull still cannot complete due to disk pressure, it reconciles the stack without pulling new images so currently running services stay online.
 
-The `plex` host installs `nvidia-driver-535`, the NVIDIA Container Toolkit, and configures Docker to default to the NVIDIA runtime so Plex and Immich can use GPU acceleration immediately after a reboot. The Docker update playbook currently syncs the active `arrstack`, `homepage`, `termix`, `yubal`, `plex`, and `immich` stacks.
+The `plex` host installs `nvidia-driver-535`, the NVIDIA Container Toolkit, and configures Docker to default to the NVIDIA runtime so Plex and Immich can use GPU acceleration immediately after a reboot. The Docker update playbook currently syncs the active `arrstack`, `homepage`, `termix`, `plex`, and `immich` stacks.
 
 ---
 

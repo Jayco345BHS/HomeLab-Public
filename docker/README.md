@@ -28,8 +28,7 @@ docker/
 ├── plex/
 ├── termix/
 ├── traefik/
-├── upsnap/
-└── yubal/
+└── upsnap/
 ```
 
 Most stack directories follow the same pattern:
@@ -46,7 +45,7 @@ The Docker stacks in this directory are not all deployed everywhere.
 
 Current Ansible-driven deployment targets:
 
-- `docker-1`: `arrstack`, `homepage`, `termix`, `yubal`
+- `docker-1`: `arrstack`, `homepage`, `termix`
 - `plex-1`: `plex`, `immich`
 - `dns-1`: no Compose stacks currently synced by the Ansible playbook
 - `gameserver-1`: no Compose stacks currently synced by the Ansible playbook
@@ -63,7 +62,7 @@ Primary media automation stack.
 
 - includes the core *arr workflow such as Sonarr, Radarr, Lidarr, and Prowlarr
 - includes qBittorrent routed through VPN
-- includes Seerr for media requests and Tautulli for Plex analytics
+- includes Seerr for media requests
 - includes supporting files like `.env` and the OpenVPN profile
 
 This is the main automation stack for media acquisition and organization.
@@ -187,16 +186,6 @@ Wake-on-LAN and device management utility.
 - stores application data locally in the stack directory
 
 This is useful for powering on or monitoring devices that do not need to run all the time.
-
-### yubal
-
-Music ingestion and library helper.
-
-- uses the shared music library mount
-- stores Beets, yt-dlp, and app config inside the stack directory
-- focuses on automated music acquisition and metadata workflow
-
-This complements the broader media stack rather than replacing Lidarr.
 
 ---
 

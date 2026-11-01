@@ -18,7 +18,7 @@ services:
       - VPN_CLIENT=openvpn
       - ENABLE_PRIVOXY=yes
       - STRICT_PORT_FORWARD=yes
-      - LAN_NETWORK=192.168.1.0/24
+      - LAN_NETWORK=192.168.2.0/24
       - NAME_SERVERS=1.1.1.1,1.0.0.1
       - VPN_INPUT_PORTS=
       - VPN_OUTPUT_PORTS=
@@ -122,19 +122,6 @@ services:
       timeout: 3s
       interval: 15s
       retries: 3
-    restart: unless-stopped
-
-  tautulli:
-    image: lscr.io/linuxserver/tautulli:latest
-    container_name: tautulli
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=${TZ}
-    volumes:
-      - ./tautulli/config:/config
-    ports:
-      - 8181:8181
     restart: unless-stopped
 
 networks:

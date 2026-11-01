@@ -3,7 +3,7 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     environment:
-      HOMEPAGE_ALLOWED_HOSTS: gethomepage.dev,homepage.local,192.168.1.12,192.168.1.12:3000,localhost,127.0.0.1
+      HOMEPAGE_ALLOWED_HOSTS: gethomepage.dev,homepage.local,192.168.2.209,192.168.2.209:3000,localhost,127.0.0.1
     ports:
       - 3000:3000
     volumes:

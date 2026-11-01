@@ -3,7 +3,7 @@ locals {
     "dns-1" = {
       hostname    = "dns-1"
       vmid        = 100
-      ip          = "192.168.1.11"
+      ip          = "192.168.2.202"
       cores       = 2
       memory      = 2048
       disk_gb     = 32
@@ -14,7 +14,7 @@ locals {
     "docker-1" = {
       hostname    = "docker-1"
       vmid        = 101
-      ip          = "192.168.1.12"
+      ip          = "192.168.2.209"
       cores       = 4
       memory      = 16384
       disk_gb     = 50
@@ -25,7 +25,7 @@ locals {
     "plex-1" = {
       hostname    = "plex-1"
       vmid        = 103
-      ip          = "192.168.1.13"
+      ip          = "192.168.2.205"
       cores       = 4
       memory      = 8192
       disk_gb     = 50
@@ -36,7 +36,7 @@ locals {
     "gameserver-1" = {
       hostname    = "gameserver-1"
       vmid        = 104
-      ip          = "192.168.1.14"
+      ip          = "192.168.2.204"
       cores       = 4
       memory      = 16384
       disk_gb     = 50
@@ -49,7 +49,7 @@ locals {
   truenas_vm = {
     hostname    = "nas-1"
     vmid        = 102
-    ip          = "192.168.1.15"
+    ip          = "192.168.2.208"
     cores       = 4
     memory      = 16384  # 16GB minimum recommended for TrueNAS
     disk_gb     = 32     # Boot drive (OS only)

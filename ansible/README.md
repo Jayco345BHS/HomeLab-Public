@@ -75,10 +75,10 @@ The main static inventory file for the lab.
 
 It defines four hosts:
 
-- `dns-1` at `192.168.1.11` with VMID `100`
-- `docker-1` at `192.168.1.12` with VMID `101`
-- `plex-1` at `192.168.1.13` with VMID `103`
-- `gameserver-1` at `192.168.1.14` with VMID `104`
+- `dns-1` at `192.168.2.202` with VMID `100`
+- `docker-1` at `192.168.2.209` with VMID `101`
+- `plex-1` at `192.168.2.205` with VMID `103`
+- `gameserver-1` at `192.168.2.204` with VMID `104`
 
 It also defines the following groups:
 
@@ -95,7 +95,7 @@ The `[homelab:vars]` section applies shared connection settings across all hosts
 Host-specific variables for `docker-1`.
 
 - defines an SMB mount for `/mnt/media`
-- points the mount at the TrueNAS host on `192.168.1.15`
+- points the mount at the TrueNAS host on `192.168.2.208`
 - sets CIFS mount options so the share is writable by UID/GID `1000`
 - uses `x-systemd.automount` and network-online options so mount recovery is resilient after host reboots
 
@@ -145,7 +145,7 @@ What it does:
 Current host-to-stack mapping inside this playbook:
 
 - `dns-1`: no stacks
-- `docker-1`: `arrstack`, `yubal`, `homepage`, `termix`
+- `docker-1`: `arrstack`, `homepage`, `termix`
 - `plex-1`: `plex`, `immich`
 - `gameserver-1`: no stacks
 

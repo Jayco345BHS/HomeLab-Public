@@ -2,123 +2,111 @@
 
 - Infrastructure:
   - Proxmox:
-      href: http://192.168.1.10:8006
+      href: http://192.168.2.200:8006
       description: Hypervisor management
       icon: proxmox.png
-      ping: 192.168.1.10
+      ping: 192.168.2.200
       widget:
         type: proxmox
-        url: https://192.168.1.10:8006
+        url: https://192.168.2.200:8006
         username: api@pam!homepage-token
         password: CHANGE_ME_PROXMOX_TOKEN_SECRET
         node: proxmox-node # optional
 
   - TrueNAS:
-      href: http://192.168.1.15
+      href: http://192.168.2.208
       description: Storage and SMB shares
       icon: truenas.png
-      ping: 192.168.1.15
+      ping: 192.168.2.208
       widget:
         type: truenas
-        url: http://192.168.1.15
+        url: http://192.168.2.208
         username: CHANGE_ME_TRUENAS_USER
         password: CHANGE_ME_PASSWORD
         enablePools: true
 
 - Access and Utilities:
   - Gitea:
-      href: http://192.168.1.12:3001
+      href: http://192.168.2.209:3001
       description: Self-hosted Git forge
       icon: gitea.png
-      ping: 192.168.1.12
+      ping: 192.168.2.209
       server: local
       container: gitea
       widget:
         type: gitea
-        url: http://192.168.1.12:3001
+        url: http://192.168.2.209:3001
         key: CHANGE_ME_GITEA_TOKEN
 
 - Media and Downloads:
   - Plex:
-      href: http://192.168.1.13:32400/web/index.html#!/
+      href: http://192.168.2.205:32400/web/index.html#!/
       description: Media server
       icon: plex.png
-      ping: 192.168.1.13
+      ping: 192.168.2.205
       widget:
         type: plex
-        url: http://192.168.1.13:32400
+        url: http://192.168.2.205:32400
         key: CHANGE_ME_API_KEY
 
   - Immich:
-      href: http://192.168.1.13:2283
+      href: http://192.168.2.205:2283
       description: Photo and video backup
       icon: immich.png
-      ping: 192.168.1.13
+      ping: 192.168.2.205
       widget:
         type: immich
-        url: http://192.168.1.13:2283
+        url: http://192.168.2.205:2283
         key: CHANGE_ME_API_KEY
         version: 2
 
   - qBittorrent:
-      href: http://192.168.1.12:8080
+      href: http://192.168.2.209:8080
       description: Torrent client through Gluetun
       icon: qbittorrent.png
-      ping: 192.168.1.12
+      ping: 192.168.2.209
       server: local
       container: qbittorrentvpn
       widget:
         type: qbittorrent
-        url: http://192.168.1.12:8080
+        url: http://192.168.2.209:8080
         username: CHANGE_ME_APP_USER
         password: CHANGE_ME_PASSWORD
 
   - Seerr:
-      href: http://192.168.1.12:5055
+      href: http://192.168.2.209:5055
       description: Media request manager
       icon: jellyseerr.png
-      ping: 192.168.1.12
+      ping: 192.168.2.209
       server: local
       container: seerr
       widget:
         type: jellyseerr
-        url: http://192.168.1.12:5055
+        url: http://192.168.2.209:5055
         key: CHANGE_ME_API_KEY
 
-  - Tautulli:
-      href: http://192.168.1.12:8181
-      description: Plex analytics and stats
-      icon: tautulli.png
-      ping: 192.168.1.12
-      server: local
-      container: tautulli
-      widget:
-        type: tautulli
-        url: http://192.168.1.12:8181
-        key: CHANGE_ME_API_KEY
-        
   - Radarr:
-      href: http://192.168.1.12:7878
+      href: http://192.168.2.209:7878
       description: Movie manager
       icon: radarr.png
-      ping: 192.168.1.12
+      ping: 192.168.2.209
       server: local
       container: radarr
       widget:
         type: radarr
-        url: http://192.168.1.12:7878
+        url: http://192.168.2.209:7878
         key: CHANGE_ME_API_KEY
 
   - Sonarr:
-      href: http://192.168.1.12:8989
+      href: http://192.168.2.209:8989
       description: TV manager
       icon: sonarr.png
-      ping: 192.168.1.12
+      ping: 192.168.2.209
       server: local
       container: sonarr
       widget:
         type: sonarr
-        url: http://192.168.1.12:8989
+        url: http://192.168.2.209:8989
         key: CHANGE_ME_API_KEY
 
   - Calendar:
@@ -133,33 +121,33 @@
             service_group: Media and Downloads
             service_name: Sonarr
             color: teal
-            baseUrl: http://192.168.1.12:8989
+            baseUrl: http://192.168.2.209:8989
           - type: radarr
             service_group: Media and Downloads
             service_name: Radarr
             color: amber
-            baseUrl: http://192.168.1.12:7878
+            baseUrl: http://192.168.2.209:7878
 
   - Prowlarr:
-      href: http://192.168.1.12:9696
+      href: http://192.168.2.209:9696
       description: Indexer manager
       icon: prowlarr.png
-      ping: 192.168.1.12
+      ping: 192.168.2.209
       server: local
       container: prowlarr
       widget:
         type: prowlarr
-        url: http://192.168.1.12:9696
+        url: http://192.168.2.209:9696
         key: CHANGE_ME_API_KEY
 
   - Lidarr:
-      href: http://192.168.1.12:8686
+      href: http://192.168.2.209:8686
       description: Music manager
       icon: lidarr.png
-      ping: 192.168.1.12
+      ping: 192.168.2.209
       server: local
       container: lidarr
       widget:
         type: lidarr
-        url: http://192.168.1.12:8686
+        url: http://192.168.2.209:8686
         key: CHANGE_ME_API_KEY
