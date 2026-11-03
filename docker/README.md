@@ -24,6 +24,7 @@ docker/
 ├── keepalived/
 ├── nebula-sync/
 ├── nextcloud/
+├── open-webui/
 ├── pi-hole/
 ├── plex/
 ├── termix/
@@ -46,7 +47,7 @@ The Docker stacks in this directory are not all deployed everywhere.
 Current Ansible-driven deployment targets:
 
 - `docker-1`: `arrstack`, `homepage`, `termix`
-- `plex-1`: `plex`, `immich`
+- `plex-1`: `plex`, `immich`, `open-webui`
 - `dns-1`: no Compose stacks currently synced by the Ansible playbook
 - `gameserver-1`: no Compose stacks currently synced by the Ansible playbook
 
@@ -140,6 +141,16 @@ Personal cloud and file sync stack.
 - tracks a Nextcloud AIO deployment
 - bundles the main AIO container definition in a single Compose file
 - is repo-managed even if not currently part of the default Ansible deployment set
+
+### open-webui
+
+Local LLM chat stack.
+
+- runs Ollama with NVIDIA GPU access for local model inference
+- runs Open WebUI as the chat front end, connected to Ollama over the Compose network
+- shares the GTX 1080 on `plex-1` with Plex transcoding and Immich machine learning, so Ollama is limited to one loaded model that unloads when idle
+
+This stack is for experimenting with self-hosted models (for example `qwen3.5:4b`) on the GPU host.
 
 ### pi-hole
 

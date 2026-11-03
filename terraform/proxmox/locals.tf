@@ -28,7 +28,7 @@ locals {
       ip          = "192.168.2.205"
       cores       = 4
       memory      = 8192
-      disk_gb     = 50
+      disk_gb     = 100
       description = "Plex media server with NVIDIA GPU passthrough"
       tags        = ["plex", "gpu", "media"]
     }

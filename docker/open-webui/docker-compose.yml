@@ -1,0 +1,52 @@
+services:
+  ollama:
+    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities:
+                - gpu
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      # Sharing the 8 GB GTX 1080 with Plex/Immich: keep one model loaded at a
+      # time and unload it when idle so VRAM is freed for transcoding/ML jobs
+      - OLLAMA_MAX_LOADED_MODELS=1
+      - OLLAMA_KEEP_ALIVE=10m
+    volumes:
+      - ollama:/root/.ollama
+    # Uncomment to call the Ollama API directly from other LAN machines
+    # (Ollama has no authentication - trusted networks only)
+    # ports:
+    #   - 11434:11434
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    container_name: open-webui
+    volumes:
+      - open-webui:/app/backend/data
+    depends_on:
+      - ollama
+    ports:
+      - ${OPEN_WEBUI_PORT-3000}:8080
+    environment:
+      - 'OLLAMA_BASE_URL=http://ollama:11434'
+      # Empty = auto-generate a key persisted in the open-webui volume
+      - 'WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-}'
+      - 'SCARF_NO_ANALYTICS=true'
+      - 'DO_NOT_TRACK=true'
+      - 'ANONYMIZED_TELEMETRY=false'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+
+volumes:
+  ollama: {}
+  open-webui: {}

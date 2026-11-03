@@ -11,6 +11,7 @@
     gpu_required_stacks:
       - plex
       - immich
+      - open-webui
     docker_stacks:
       dns-1: []
       docker-1:
@@ -20,6 +21,7 @@
       plex-1:
         - plex
         - immich
+        - open-webui
       gameserver-1: []
 
   tasks:

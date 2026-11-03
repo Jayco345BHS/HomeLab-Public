@@ -59,6 +59,7 @@ TrueNAS currently uses an **LSI 9207-8i HBA** with **4× 8 TB Seagate IronWolf 7
 - **Dashboards** – Homepage as the primary service portal and status dashboard  
 - **Networking** – Pi-hole for DNS, Gluetun for VPN-routed download traffic, plus repo-tracked Keepalived and Nebula Sync for HA work  
 - **Access & Utilities** – Authentik, Traefik, Termix, Upsnap, and other supporting self-hosted services tracked in Compose  
+- **Local AI** – Open WebUI + Ollama running GPU-accelerated local LLMs (for example `qwen3.5:4b`) on the Plex host  
 - **Game Hosting** – AMP on Ubuntu 24.04 for Minecraft and other game server workloads
 
 ---
@@ -89,7 +90,7 @@ Terraform now owns VM creation on Proxmox while Ansible configures each guest an
 | DNS-1 | 2 | 2 GB | 32 GB | 192.168.2.202 | Pi-hole / DNS |
 | Docker-1 | 4 | 16 GB | 50 GB | 192.168.2.209 | Primary Docker host |
 | NAS-1 | 4 | 16 GB | 32 GB boot disk + passthrough storage | Manual post-install | TrueNAS Scale storage server |
-| PLEX | 4 | 8 GB | 50 GB | 192.168.2.205 | GPU-enabled Plex server |
+| PLEX | 4 | 8 GB | 100 GB | 192.168.2.205 | GPU-enabled Plex server |
 | Game Server | 4 | 16 GB | 50 GB | 192.168.2.204 | Game + lab workloads |
 
 ### Ansible provisioning
@@ -100,7 +101,7 @@ Terraform now owns VM creation on Proxmox while Ansible configures each guest an
 	The playbook now retries stack updates that fail with `no space left on device` by pruning unused Docker images on that host, then rerunning only the affected stacks.
 	If a pull still cannot complete due to disk pressure, it reconciles the stack without pulling new images so currently running services stay online.
 
-The `plex` host installs `nvidia-driver-535`, the NVIDIA Container Toolkit, and configures Docker to default to the NVIDIA runtime so Plex and Immich can use GPU acceleration immediately after a reboot. The Docker update playbook currently syncs the active `arrstack`, `homepage`, `termix`, `plex`, and `immich` stacks.
+The `plex` host installs `nvidia-driver-535`, the NVIDIA Container Toolkit, and configures Docker to default to the NVIDIA runtime so Plex, Immich, and Ollama can use GPU acceleration immediately after a reboot. The Docker update playbook currently syncs the active `arrstack`, `homepage`, `termix`, `plex`, `immich`, and `open-webui` stacks.
 
 ---
 
